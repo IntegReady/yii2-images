@@ -203,7 +203,7 @@ class Image extends \yii\db\ActiveRecord
                 $image->writeImage($pathToSave);
             }else{
 
-                $image = new \abeautifulsite\simpleimage($imagePath);
+                $image = new \abeautifulsite\SimpleImage($imagePath);
 
 
 
