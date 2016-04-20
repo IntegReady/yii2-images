@@ -6,7 +6,7 @@
  * Time: 0:20
  */
 
-namespace rico\yii2images;
+namespace legront\images;
 
 
 use yii\base\Exception;
@@ -14,12 +14,12 @@ use yii\base\Exception;
 trait ModuleTrait
 {
     /**
-     * @var null|\rico\yii2images\Module
+     * @var null|\legront\images\Module
      */
     private $_module;
 
     /**
-     * @return null|\rico\yii2images\Module
+     * @return null|\legront\images\Module
      */
     protected function getModule()
     {

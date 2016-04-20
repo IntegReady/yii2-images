@@ -135,7 +135,7 @@ Installation
         {
             return [
                 'image' => [
-                    'class' => 'rico\yii2images\behaviors\ImageBehave',
+                    'class' => 'legront\images\behaviors\ImageBehave',
                 ]
             ];
         }

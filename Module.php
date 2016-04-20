@@ -1,11 +1,11 @@
 <?php
 
-namespace rico\yii2images;
+namespace legront\images;
 
 
-use rico\yii2images\models\PlaceHolder;
+use legront\images\models\PlaceHolder;
 use yii;
-use rico\yii2images\models\Image;
+use legront\images\models\Image;
 
 class Module extends \yii\base\Module
 {
@@ -15,7 +15,7 @@ class Module extends \yii\base\Module
 
     public $graphicsLibrary = 'GD';
 
-    public $controllerNamespace = 'rico\yii2images\controllers';
+    public $controllerNamespace = 'legront\images\controllers';
 
     public $placeHolderPath;
 
