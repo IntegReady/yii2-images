@@ -68,7 +68,7 @@ class Image extends \yii\db\ActiveRecord
         $origin = $this->getPathToOrigin();
 
         $filePath = $base.DIRECTORY_SEPARATOR.
-            $sub.DIRECTORY_SEPARATOR.$this->urlAlias.$urlSize.'.'.pathinfo($origin, PATHINFO_EXTENSION);;
+            $sub.DIRECTORY_SEPARATOR.$this->urlAlias.$urlSize.'.'.pathinfo($origin, PATHINFO_EXTENSION);
         if(!file_exists($filePath)){
             $this->createVersion($origin, $size);
 
@@ -78,6 +78,27 @@ class Image extends \yii\db\ActiveRecord
         }
 
         return $filePath;
+    }
+
+    public function getLink($size = false){
+        $urlSize = ($size) ? '_'.$size : '';
+        $base = $this->getModule()->getCachePath();
+        $imageDomain = $this->getModule()->getImageDomain();
+        $sub = $this->getSubDur();
+
+        $origin = $this->getPathToOrigin();
+
+        $filePath = $base.DIRECTORY_SEPARATOR.
+            $sub.DIRECTORY_SEPARATOR.$this->urlAlias.$urlSize.'.'.pathinfo($origin, PATHINFO_EXTENSION);;
+        if(!file_exists($filePath)){
+            $this->createVersion($origin, $size);
+
+            if(!file_exists($filePath)){
+                throw new \Exception('Problem with image creating.');
+            }
+        }
+        return $imageDomain.$sub.DIRECTORY_SEPARATOR.$this->urlAlias.$urlSize.'.'.pathinfo($origin, PATHINFO_EXTENSION);
+
     }
 
     public function getContent($size = false){
@@ -182,7 +203,7 @@ class Image extends \yii\db\ActiveRecord
                 $image->writeImage($pathToSave);
             }else{
 
-                $image = new \abeautifulsite\SimpleImage($imagePath);
+                $image = new \abeautifulsite\simpleimage($imagePath);
 
 
 

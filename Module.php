@@ -23,6 +23,8 @@ class Module extends \yii\base\Module
 
     public $className;
 
+    public $imageDomain = false;
+
 
     public function getImage($item, $dirtyAlias)
     {
@@ -72,7 +74,10 @@ class Module extends \yii\base\Module
     public function getCachePath()
     {
         return Yii::getAlias($this->imagesCachePath);
+    }
 
+    public function getImageDomain() {
+        return Yii::getAlias($this->imageDomain);
     }
 
     public function getModelSubDir($model)
