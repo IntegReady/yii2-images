@@ -9,7 +9,7 @@
  * override methods
  */
 
-namespace legront\images\models;
+namespace integready\images\models;
 
 /**
  * TODO: check path to save and all image method for placeholder
@@ -19,7 +19,7 @@ use Yii;
 
 /**
  * Class PlaceHolder
- * @package legront\images\models
+ * @package integready\images\models
  *
  * @property bool|string $pathToOrigin
  * @property string $subDur

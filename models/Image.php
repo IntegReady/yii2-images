@@ -1,9 +1,9 @@
 <?php
 
-namespace legront\images\models;
+namespace integready\images\models;
 
 use abeautifulsite\SimpleImage;
-use legront\images\ModuleTrait;
+use integready\images\ModuleTrait;
 use Yii;
 use yii\base\Exception;
 use yii\db\ActiveRecord;

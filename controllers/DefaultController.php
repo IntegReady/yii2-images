@@ -1,12 +1,12 @@
 <?php
 
-namespace legront\images\controllers;
+namespace integready\images\controllers;
 
 use yii\web\Controller;
 
 /**
  * Class DefaultController
- * @package legront\images\controllers
+ * @package integready\images\controllers
  */
 class DefaultController extends Controller
 {

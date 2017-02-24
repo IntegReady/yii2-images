@@ -6,11 +6,11 @@
  * Time: 16:58
  */
 
-namespace legront\images\behaviors;
+namespace integready\images\behaviors;
 
-use legront\images\models;
-use legront\images\models\Image;
-use legront\images\ModuleTrait;
+use integready\images\models;
+use integready\images\models\Image;
+use integready\images\ModuleTrait;
 use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
@@ -19,7 +19,7 @@ use yii\helpers\BaseFileHelper;
 
 /**
  * Class ImageBehave
- * @package legront\images\behaviors
+ * @package integready\images\behaviors
  *
  * @property ImageBehave|Image $owner
  *
@@ -107,7 +107,7 @@ class ImageBehave extends Behavior
         $img = $this->owner->getImage();
 
         //If main image not exists
-        if (is_object($img) && get_class($img) == 'legront\images\models\PlaceHolder'
+        if (is_object($img) && get_class($img) == 'integready\images\models\PlaceHolder'
             or
             $img == null
             or

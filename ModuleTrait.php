@@ -6,18 +6,18 @@
  * Time: 0:20
  */
 
-namespace legront\images;
+namespace integready\images;
 
 use yii\base\Exception;
 
 /**
  * Class ModuleTrait
- * @package legront\images
+ * @package integready\images
  */
 trait ModuleTrait
 {
     /**
-     * @var null|\legront\images\Module
+     * @var null|\integready\images\Module
      */
     private $_module;
 

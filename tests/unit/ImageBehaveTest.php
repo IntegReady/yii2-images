@@ -2,8 +2,8 @@
 
 namespace models;
 
-use legront\images\behaviors\ImageBehave;
-use legront\images\models\Image;
+use integready\images\behaviors\ImageBehave;
+use integready\images\models\Image;
 use org\bovigo\vfs\vfsStream;
 use Yii;
 use yii\codeception\DbTestCase;
@@ -41,7 +41,7 @@ class ImageBehaveTest extends DbTestCase
             ],
             'modules'    => [
                 'yii2images' => [
-                    'class' => 'legront\images\Module',
+                    'class' => 'integready\images\Module',
 
                 ],
             ],
@@ -143,7 +143,7 @@ class ImageBehaveTest extends DbTestCase
         //Check one image
         $this->model->attachImage(__DIR__ . '/data/testPicture.jpg');
         $image = $this->model->getImage();
-        $this->assertTrue(get_class($image) == 'legront\images\models\Image');
+        $this->assertTrue(get_class($image) == 'integready\images\models\Image');
 
         //Check several images
         $this->model->attachImage(__DIR__ . '/data/testPicture.jpg');
@@ -151,7 +151,7 @@ class ImageBehaveTest extends DbTestCase
         $this->model->attachImage(__DIR__ . '/data/testPicture.jpg');
 
         $image = $this->model->getImage();
-        $this->assertTrue(get_class($image) == 'legront\images\models\Image');
+        $this->assertTrue(get_class($image) == 'integready\images\models\Image');
 
         //Check is it first image main
         $this->assertTrue($image->isMain == 1);

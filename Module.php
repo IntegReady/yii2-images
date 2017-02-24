@@ -1,26 +1,26 @@
 <?php
 
-namespace legront\images;
+namespace integready\images;
 
-use legront\images\models\Image;
-use legront\images\models\PlaceHolder;
+use integready\images\models\Image;
+use integready\images\models\PlaceHolder;
 use Yii;
 use yii\helpers\Inflector;
 
 /**
  * Class Module
- * @package legront\images
+ * @package integready\images
  *
  * @property bool|string $storePath
  * @property bool|string $cachePath
- * @property null|\legront\images\models\PlaceHolder $placeHolder
+ * @property null|\integready\images\models\PlaceHolder $placeHolder
  */
 class Module extends \yii\base\Module
 {
     public $imagesStorePath     = '@app/web/store';
     public $imagesCachePath     = '@app/web/imgCache';
     public $graphicsLibrary     = 'GD';
-    public $controllerNamespace = 'legront\images\controllers';
+    public $controllerNamespace = 'integready\images\controllers';
     public $placeHolderPath;
     public $waterMark           = false;
     public $className;

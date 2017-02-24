@@ -1,6 +1,6 @@
 <?php
 
-use legront\images\behaviors\ImageBehave;
+use integready\images\behaviors\ImageBehave;
 use org\bovigo\vfs\vfsStream;
 use yii\codeception\DbTestCase;
 use yii\codeception\TestCase;
@@ -75,7 +75,7 @@ class ImageTest extends TestCase
             ],
             'modules'    => [
                 'ricoStore' => [
-                    'class' => 'legront\images\Module',
+                    'class' => 'integready\images\Module',
 
                 ],
             ],

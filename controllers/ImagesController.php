@@ -6,15 +6,15 @@
  * Time: 15:35
  */
 
-namespace legront\images\controllers;
+namespace integready\images\controllers;
 
-use legront\images\ModuleTrait;
+use integready\images\ModuleTrait;
 use yii\web\Controller;
 use yii\web\HttpException;
 
 /**
  * Class ImagesController
- * @package legront\images\controllers
+ * @package integready\images\controllers
  */
 class ImagesController extends Controller
 {
