@@ -117,7 +117,7 @@ Installation
     ```php
     'modules' => [
             'yii2images' => [
-                'class' => 'legront\yii2images\Module',
+                'class' => 'integready\yii2images\Module',
                 //be sure, that permissions ok
                 //if you cant avoid permission errors you have to create "images" folder in web root manually and set 777 permissions
                 'imagesStorePath' => '@frontend/web/images/store', //path to origin images
@@ -135,7 +135,7 @@ Installation
         {
             return [
                 'image' => [
-                    'class' => 'legront\images\behaviors\ImageBehave',
+                    'class' => 'integready\images\behaviors\ImageBehave',
                 ]
             ];
         }
