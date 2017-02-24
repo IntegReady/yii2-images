@@ -15,16 +15,20 @@ namespace legront\images\models;
  * TODO: check path to save and all image method for placeholder
  */
 
-use yii;
+use Yii;
 
+/**
+ * Class PlaceHolder
+ * @package legront\images\models
+ *
+ * @property bool|string $pathToOrigin
+ * @property string $subDur
+ * @property bool $main
+ */
 class PlaceHolder extends Image
 {
-
-    private $modelName = '';
-    private $itemId = '';
     public $filePath = 'placeHolder.png';
     public $urlAlias = 'placeHolder';
-
 
     /*  public function getUrl($size = false){
           $url = $this->getModule()->placeHolderUrl;
@@ -34,27 +38,44 @@ class PlaceHolder extends Image
           return $url;
       }*/
 
+    /**
+     * PlaceHolder constructor.
+     */
     public function __construct()
     {
-        $this->filePath =basename(Yii::getAlias($this->getModule()->placeHolderPath)) ;
+        parent::__construct();
+        $this->filePath = basename(Yii::getAlias($this->getModule()->placeHolderPath));
     }
 
+    /**
+     * @return bool|string
+     * @throws \Exception
+     */
     public function getPathToOrigin()
     {
-
         $url = Yii::getAlias($this->getModule()->placeHolderPath);
         if (!$url) {
             throw new \Exception('PlaceHolder image must have path setting!!!');
         }
+
         return $url;
     }
 
-    protected  function getSubDur(){
+    /**
+     * @return string
+     */
+    protected function getSubDur()
+    {
         return 'placeHolder';
     }
-    public function setMain($isMain = true){
+
+    /**
+     * @param bool $isMain
+     *
+     * @throws yii\base\Exception
+     */
+    public function setMain($isMain = true)
+    {
         throw new yii\base\Exception('You must not set placeHolder as main image!!!');
     }
-
 }
-

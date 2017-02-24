@@ -8,44 +8,53 @@
 
 namespace legront\images\behaviors;
 
-
+use legront\images\models;
 use legront\images\models\Image;
-
-use yii;
+use legront\images\ModuleTrait;
+use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
-use legront\images\models;
+use yii\helpers\BaseArrayHelper;
 use yii\helpers\BaseFileHelper;
-use \legront\images\ModuleTrait;
 
-
-
+/**
+ * Class ImageBehave
+ * @package legront\images\behaviors
+ *
+ * @property ImageBehave|Image $owner
+ *
+ * @property Image|null|array $image
+ * @property mixed $mainImage
+ * @property array|Image[] $images
+ * @property string $alias
+ * @property string $aliasString
+ */
 class ImageBehave extends Behavior
 {
-
     use ModuleTrait;
-    public $createAliasMethod = false;
 
+    public $createAliasMethod = false;
     /**
      * @var ActiveRecord|null Model class, which will be used for storing image data in db, if not set default class(models/Image) will be used
      */
 
     /**
-     *
      * Method copies image file to module store and creates db record.
      *
-     * @param $absolutePath
-     * @param bool $isFirst
+     * @param string $absolutePath
+     * @param bool $isMain
+     * @param string $name
+     *
      * @return bool|Image
      * @throws \Exception
      */
     public function attachImage($absolutePath, $isMain = false, $name = '')
     {
-        if(!preg_match('#http#', $absolutePath)){
+        if (!preg_match('#http#', $absolutePath)) {
             if (!file_exists($absolutePath)) {
-                throw new \Exception('File not exist! :'.$absolutePath);
+                throw new \Exception('File not exist! :' . $absolutePath);
             }
-        }else{
+        } else {
             //nothing
         }
 
@@ -57,15 +66,14 @@ class ImageBehave extends Behavior
             substr(md5(microtime(true) . $absolutePath), 4, 6)
             . '.' .
             pathinfo($absolutePath, PATHINFO_EXTENSION);
-        $pictureSubDir = $this->getModule()->getModelSubDir($this->owner);
-        $storePath = $this->getModule()->getStorePath($this->owner);
+        $pictureSubDir   = $this->getModule()->getModelSubDir($this->owner);
+        $storePath       = $this->getModule()->getStorePath();
 
         $newAbsolutePath = $storePath .
             DIRECTORY_SEPARATOR . $pictureSubDir .
             DIRECTORY_SEPARATOR . $pictureFileName;
 
-        BaseFileHelper::createDirectory($storePath . DIRECTORY_SEPARATOR . $pictureSubDir,
-            0775, true);
+        BaseFileHelper::createDirectory($storePath . DIRECTORY_SEPARATOR . $pictureSubDir, 0775, true);
 
         copy($absolutePath, $newAbsolutePath);
 
@@ -79,19 +87,18 @@ class ImageBehave extends Behavior
             $class = $this->getModule()->className;
             $image = new $class();
         }
-        $image->itemId = $this->owner->primaryKey;
-        $image->filePath = $pictureSubDir . '/' . $pictureFileName;
+        $image->itemId    = $this->owner->primaryKey;
+        $image->filePath  = $pictureSubDir . '/' . $pictureFileName;
         $image->modelName = $this->getModule()->getShortClass($this->owner);
-        $image->name = $name;
+        $image->name      = $name;
 
-        $image->urlAlias = $this->getAlias($image);
+        $image->urlAlias = $this->getAlias();
 
-        if(!$image->save()){
+        if (!$image->save()) {
             return false;
         }
 
         if (count($image->getErrors()) > 0) {
-
             $ar = array_shift($image->getErrors());
 
             unlink($newAbsolutePath);
@@ -100,23 +107,124 @@ class ImageBehave extends Behavior
         $img = $this->owner->getImage();
 
         //If main image not exists
-        if(
-            is_object($img) && get_class($img)=='legront\images\models\PlaceHolder'
+        if (is_object($img) && get_class($img) == 'legront\images\models\PlaceHolder'
             or
             $img == null
             or
             $isMain
-        ){
+        ) {
             $this->setMainImage($image);
         }
-
 
         return $image;
     }
 
     /**
+     * Обновить алиасы для картинок
+     * Зачистить кэш
+     */
+    private function getAlias()
+    {
+        $aliasWords  = $this->getAliasString();
+        $imagesCount = count($this->owner->getImages());
+
+        return $aliasWords . '-' . intval($imagesCount + 1);
+    }
+
+    /** Make string part of image's url
+     * @return string
+     * @throws \Exception
+     */
+    private function getAliasString()
+    {
+        if ($this->createAliasMethod) {
+            $string = $this->owner->{$this->createAliasMethod}();
+            if (!is_string($string)) {
+                throw new \Exception("Image's url must be string!");
+            } else {
+                return $string;
+            }
+        } else {
+            return substr(md5(microtime()), 0, 10);
+        }
+    }
+
+    /**
+     * Returns model images
+     * First image alwats must be main image
+     * @return array|yii\db\ActiveRecord[]
+     */
+    public function getImages()
+    {
+        $finder = $this->getImagesFinder();
+
+        if ($this->getModule()->className === null) {
+            $imageQuery = Image::find();
+        } else {
+            /** @var Image $class */
+            $class      = $this->getModule()->className;
+            $imageQuery = $class::find();
+        }
+        $imageQuery->where($finder);
+        $imageQuery->orderBy(['isMain' => SORT_DESC, 'id' => SORT_ASC]);
+
+        $imageRecords = $imageQuery->all();
+        if (!$imageRecords) {
+            return [$this->getModule()->getPlaceHolder()];
+        }
+
+        return $imageRecords;
+    }
+
+    /**
+     * @param array|bool $additionWhere
+     *
+     * @return array
+     */
+    private function getImagesFinder($additionWhere = false)
+    {
+        $base = [
+            'itemId'    => $this->owner->primaryKey,
+            'modelName' => $this->getModule()->getShortClass($this->owner),
+        ];
+
+        if ($additionWhere) {
+            $base = BaseArrayHelper::merge($base, $additionWhere);
+        }
+
+        return $base;
+    }
+
+    /**
+     * returns main model image
+     * @return array|null|ActiveRecord
+     */
+    public function getImage()
+    {
+        if ($this->getModule()->className === null) {
+            $imageQuery = Image::find();
+        } else {
+            /** @var Image $class */
+            $class      = $this->getModule()->className;
+            $imageQuery = $class::find();
+        }
+        $finder = $this->getImagesFinder(['isMain' => 1]);
+        $imageQuery->where($finder);
+        $imageQuery->orderBy(['isMain' => SORT_DESC, 'id' => SORT_ASC]);
+
+        $img = $imageQuery->one();
+        if (!$img) {
+            return $this->getModule()->getPlaceHolder();
+        }
+
+        return $img;
+    }
+
+    /**
      * Sets main image of model
+     *
      * @param $img
+     *
      * @throws \Exception
      */
     public function setMainImage($img)
@@ -130,10 +238,8 @@ class ImageBehave extends Behavior
         $img->urlAlias = $this->getAliasString() . '-' . $counter;
         $img->save();
 
-
         $images = $this->owner->getImages();
         foreach ($images as $allImg) {
-
             if ($allImg->id == $img->id) {
                 continue;
             } else {
@@ -148,7 +254,6 @@ class ImageBehave extends Behavior
         $this->owner->clearImagesCache();
     }
 
-
     /**
      * Clear all images cache (and resized copies)
      * @return bool
@@ -156,12 +261,13 @@ class ImageBehave extends Behavior
     public function clearImagesCache()
     {
         $cachePath = $this->getModule()->getCachePath();
-        $subdir = $this->getModule()->getModelSubDir($this->owner);
+        $subdir    = $this->getModule()->getModelSubDir($this->owner);
 
         $dirToRemove = $cachePath . '/' . $subdir;
 
         if (preg_match('/' . preg_quote($cachePath, '/') . '/', $dirToRemove)) {
             BaseFileHelper::removeDirectory($dirToRemove);
+
             //exec('rm -rf ' . $dirToRemove);
             return true;
         } else {
@@ -169,59 +275,11 @@ class ImageBehave extends Behavior
         }
     }
 
-
-    /**
-     * Returns model images
-     * First image alwats must be main image
-     * @return array|yii\db\ActiveRecord[]
-     */
-    public function getImages()
-    {
-        $finder = $this->getImagesFinder();
-
-        if ($this->getModule()->className === null) {
-            $imageQuery = Image::find();
-        } else {
-            $class = $this->getModule()->className;
-            $imageQuery = $class::find();
-        }
-        $imageQuery->where($finder);
-        $imageQuery->orderBy(['isMain' => SORT_DESC, 'id' => SORT_ASC]);
-
-        $imageRecords = $imageQuery->all();
-        if(!$imageRecords){
-            return [$this->getModule()->getPlaceHolder()];
-        }
-        return $imageRecords;
-    }
-
-
-    /**
-     * returns main model image
-     * @return array|null|ActiveRecord
-     */
-    public function getImage()
-    {
-        if ($this->getModule()->className === null) {
-            $imageQuery = Image::find();
-        } else {
-            $class = $this->getModule()->className;
-            $imageQuery = $class::find();
-        }
-        $finder = $this->getImagesFinder(['isMain' => 1]);
-        $imageQuery->where($finder);
-        $imageQuery->orderBy(['isMain' => SORT_DESC, 'id' => SORT_ASC]);
-
-        $img = $imageQuery->one();
-        if(!$img){
-            return $this->getModule()->getPlaceHolder();
-        }
-
-        return $img;
-    }
-
     /**
      * returns model image by name
+     *
+     * @param $name
+     *
      * @return array|null|ActiveRecord
      */
     public function getImageByName($name)
@@ -229,7 +287,8 @@ class ImageBehave extends Behavior
         if ($this->getModule()->className === null) {
             $imageQuery = Image::find();
         } else {
-            $class = $this->getModule()->className;
+            /** @var Image $class */
+            $class      = $this->getModule()->className;
             $imageQuery = $class::find();
         }
         $finder = $this->getImagesFinder(['name' => $name]);
@@ -237,7 +296,7 @@ class ImageBehave extends Behavior
         $imageQuery->orderBy(['isMain' => SORT_DESC, 'id' => SORT_ASC]);
 
         $img = $imageQuery->one();
-        if(!$img){
+        if (!$img) {
             return $this->getModule()->getPlaceHolder();
         }
 
@@ -256,14 +315,17 @@ class ImageBehave extends Behavior
             foreach ($images as $image) {
                 $this->owner->removeImage($image);
             }
+
+            return true;
         }
     }
-
 
     /**
      *
      * removes concrete model's image
+     *
      * @param Image $img
+     *
      * @throws \Exception
      */
     public function removeImage(Image $img)
@@ -278,59 +340,4 @@ class ImageBehave extends Behavior
         }
         $img->delete();
     }
-
-    private function getImagesFinder($additionWhere = false)
-    {
-        $base = [
-            'itemId' => $this->owner->primaryKey,
-            'modelName' => $this->getModule()->getShortClass($this->owner)
-        ];
-
-        if ($additionWhere) {
-            $base = \yii\helpers\BaseArrayHelper::merge($base, $additionWhere);
-        }
-
-        return $base;
-    }
-
-
-
-    /** Make string part of image's url
-     * @return string
-     * @throws \Exception
-     */
-    private function getAliasString()
-    {
-        if ($this->createAliasMethod) {
-            $string = $this->owner->{$this->createAliasMethod}();
-            if (!is_string($string)) {
-                throw new \Exception("Image's url must be string!");
-            } else {
-                return $string;
-            }
-
-        } else {
-            return substr(md5(microtime()), 0, 10);
-        }
-    }
-
-
-    /**
-     *
-     * Обновить алиасы для картинок
-     * Зачистить кэш
-     */
-    private function getAlias()
-    {
-        $aliasWords = $this->getAliasString();
-        $imagesCount = count($this->owner->getImages());
-
-        return $aliasWords . '-' . intval($imagesCount + 1);
-    }
-
-
-
-
 }
-
-
