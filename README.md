@@ -99,7 +99,7 @@ Installation
     <pre>
        {
             "require": {
-                "costa-rico/yii2-images": "dev-master"
+                "integready/yii2-images": "dev-master"
             }
        }
     </pre>
@@ -110,7 +110,7 @@ Installation
 
 3. run migrate
     <pre>
-    php yii migrate/up --migrationPath=@vendor/costa-rico/yii2-images/migrations
+    php yii migrate/up --migrationPath=@vendor/integready/yii2-images/migrations
     </pre>
 
 4. setup module
