@@ -6,20 +6,24 @@
  * Time: 0:20
  */
 
-namespace legront\images;
-
+namespace integready\images;
 
 use yii\base\Exception;
 
+/**
+ * Class ModuleTrait
+ * @package integready\images
+ */
 trait ModuleTrait
 {
     /**
-     * @var null|\legront\images\Module
+     * @var null|\integready\images\Module
      */
     private $_module;
 
     /**
-     * @return null|\legront\images\Module
+     * @return Module|null
+     * @throws Exception
      */
     protected function getModule()
     {
@@ -27,7 +31,7 @@ trait ModuleTrait
             $this->_module = \Yii::$app->getModule('yii2images');
         }
 
-        if(!$this->_module){
+        if (!$this->_module) {
             throw new Exception("\n\n\n\n\nYii2 images module not found, may be you didn't add it to your config?\n\n\n\n");
         }
 
